@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     	pilot_compute_service = PilotComputeService(COORDINATION_URL)
     
-    	# copy image tiles back to our 'local' directory
+    	# specify local directory to copy input and output text files back 
     	dirname = 'sftp://localhost/%s/mergesort_agent' % os.getcwd()
     	workdir = saga.filesystem.Directory(dirname, saga.filesystem.Create)
 
@@ -60,7 +60,7 @@ if __name__ == "__main__":
                                       "walltime":10
                               	    }
 
-    	# copy the input and executable script to the remote host
+    	# copy the executable and input file to the remote host
         msexe = saga.filesystem.File('sftp://localhost/%s/mergesort.py' % os.getcwd())
         msexe.copy(workdir.get_url())
 	msinput = saga.filesystem.File('sftp://localhost/%s/ms_input.txt' % os.getcwd())
