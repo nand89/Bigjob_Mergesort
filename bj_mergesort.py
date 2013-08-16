@@ -3,7 +3,7 @@ import bliss.saga as saga
 from pilot import PilotComputeService, ComputeDataService, State
 import random
 
-HOSTNAME    = "fork://localhost"
+HOSTNAME    = "pbs+ssh://india.futuregrid.org"
 
 QUEUE       = "normal"
 
