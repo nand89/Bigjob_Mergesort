@@ -6,7 +6,7 @@
     algorithm. Here we specify the merge-sort operation as a single big-job 
     operation. A random array with desired number of elements is generated 
     and split into parts and merge-sort is performed on each of them by 
-    individual big-jobs. The result is again merge-sorted to obtain the
+    individual jobs. The result is again merged to obtain the
     final sorted output array.
 
     The parameters are as follows:
