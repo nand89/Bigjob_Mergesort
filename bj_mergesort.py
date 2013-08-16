@@ -7,7 +7,7 @@ HOSTNAME    = "pbs+ssh://india.futuregrid.org"
 
 QUEUE       = "normal"
 
-WORKDIR     = "/home/tutorial-21" 
+WORKDIR     = "/home/agent" 
 
 ### This is the number of jobs you want to run
 NUM_JOBS = 2
