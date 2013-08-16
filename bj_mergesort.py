@@ -106,7 +106,7 @@ if __name__ == "__main__":
             	workdir.copy(textfile, 'sftp://localhost/%s/' % os.getcwd())
 
         # concatenate the strings together
-        print ' * Performing a final MERGE of results of all big-jobs to : ms_output.txt'
+        print ' * Performing a final MERGE of sorted outputs of all jobs to : ms_output.txt'
 	final_array = []
         for x in range(0, NUM_JOBS):
         	temp_file = open('sorted%s.txt' % x, 'r')
