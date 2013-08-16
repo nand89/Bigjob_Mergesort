@@ -3,7 +3,7 @@ import bliss.saga as saga
 from pilot import PilotComputeService, ComputeDataService, State
 import random
 
-HOSTNAME    = "pbs+ssh://india.futuregrid.org"
+HOSTNAME    = "pbs+ssh://@india.futuregrid.org"
 
 QUEUE       = "normal"
 
@@ -22,7 +22,7 @@ unsortedfile.write(unsorted_string)
 unsortedfile.close()
 
 # set up redis server connection
-COORDINATION_URL = "redis://localhost:6379"
+COORDINATION_URL = "redis://@gw68.quarry.iu.teragrid.org:6379"
 
 # define merge function for final merge
 def merge(left,right):
