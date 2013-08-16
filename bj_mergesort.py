@@ -3,7 +3,7 @@ import bliss.saga as saga
 from pilot import PilotComputeService, ComputeDataService, State
 import random
 
-HOSTNAME    = "tutorial-21@repex1.tacc.utexas.edu"
+HOSTNAME    = "fork://localhost"
 
 QUEUE       = "normal"
 
