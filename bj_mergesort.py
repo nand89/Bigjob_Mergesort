@@ -7,7 +7,7 @@ HOSTNAME    = "pbs+ssh://india.futuregrid.org"
 
 QUEUE       = "normal"
 
-WORKDIR     = "/home/agent" 
+WORKDIR     = "/home/nv121" 
 
 ### This is the number of jobs you want to run
 NUM_JOBS = 2
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     	pilot_compute_service = PilotComputeService(COORDINATION_URL)
     
     	# copy image tiles back to our 'local' directory
-    	dirname = 'sftp://localhost/%s/mergesort' % os.getcwd()
+    	dirname = 'sftp://localhost/%s/mergesort_agent' % os.getcwd()
     	workdir = saga.filesystem.Directory(dirname, saga.filesystem.Create)
 
     	pilot_compute_description = { "service_url": HOSTNAME,
