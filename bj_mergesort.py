@@ -3,11 +3,11 @@ import bliss.saga as saga
 from pilot import PilotComputeService, ComputeDataService, State
 import random
 
-HOSTNAME    = "fork://localhost"
+HOSTNAME    = "tutorial-21@repex1.tacc.utexas.edu"
 
 QUEUE       = "normal"
 
-WORKDIR     = "/home/nandhini" 
+WORKDIR     = "/home/tutorial-21" 
 
 ### This is the number of jobs you want to run
 NUM_JOBS = 2
