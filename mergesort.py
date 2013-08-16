@@ -106,6 +106,7 @@ if __name__ == "__main__":
 
     if len(args) == 3:
         job = str(sys.argv[3])
+        
 
     sort(input_size, num_jobs, job)
 
