@@ -89,7 +89,8 @@ if __name__ == "__main__":
 		inputfile.close()
 
 		compute_unit_description = {	"executable": "python",
-                        			"arguments": [workdir.get_url().path + 'mergesort.py', input_size, NUM_JOBS, x],
+                        			"arguments": [workdir.get_url().path + 'mergesort.py', input_size, 
+                        			NUM_JOBS, x],
                         			"number_of_processes": 1,    
                         			"working_directory":workdir.get_url().path,        
                         			"output": "stdout_%s.txt" % x,
