@@ -3,7 +3,7 @@ import bliss.saga as saga
 from pilot import PilotComputeService, ComputeDataService, State
 import random
 
-HOSTNAME    = "pbs+ssh://tutorial-21@repex1.tacc.utexas.edu"
+HOSTNAME    = "pbs+ssh://username@repex1.tacc.utexas.edu"
 
 QUEUE       = "normal"
 
