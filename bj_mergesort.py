@@ -102,7 +102,7 @@ if __name__ == "__main__":
     	compute_data_service.wait()
                 
     	# Copy the outputs back to local file
-        for textfile in workdir.list('sorted?.txt'):
+        for textfile in workdir.list('sorted*'):
             	print ' * Copying %s/%s to %s' % (workdir.get_url(), textfile, WORKDIR)
             	workdir.copy(textfile, 'sftp://localhost/%s/' % os.getcwd())
 
