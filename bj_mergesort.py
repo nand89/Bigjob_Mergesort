@@ -22,7 +22,7 @@ unsortedfile.write(unsorted_string)
 unsortedfile.close()
 
 # set up redis server connection
-COORDINATION_URL = "redis://tutorial-21@gw68.quarry.iu.teragrid.org:6379"
+COORDINATION_URL = "redis://username@gw68.quarry.iu.teragrid.org:6379"
 
 # define merge function for final merge
 def merge(left,right):
