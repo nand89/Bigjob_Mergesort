@@ -3,11 +3,11 @@ import bliss.saga as saga
 from pilot import PilotComputeService, ComputeDataService, State
 import random
 
-HOSTNAME    = "pbs+ssh://username@india.futuregrid.org"
+HOSTNAME    = "pbs+ssh://tutorial-21@repex1.tacc.utexas.edu"
 
 QUEUE       = "normal"
 
-WORKDIR     = "/home/nv121" 
+WORKDIR     = "/home/tutorial-21" 
 
 ### This is the number of jobs you want to run
 NUM_JOBS = 2
@@ -22,7 +22,7 @@ unsortedfile.write(unsorted_string)
 unsortedfile.close()
 
 # set up redis server connection
-COORDINATION_URL = "redis://redispwd@gw68.quarry.iu.teragrid.org:6379"
+COORDINATION_URL = "redis://tutorial-21@gw68.quarry.iu.teragrid.org:6379"
 
 # define merge function for final merge
 def merge(left,right):
