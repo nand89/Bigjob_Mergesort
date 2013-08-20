@@ -5,8 +5,8 @@ import random
 # Redis password and 'user' name a aquired from the environment
 REDIS_PWD   = os.environ.get('XSEDE_TUTORIAL_REDIS_PASSWORD')
 USER_NAME   = os.environ.get('XSEDE_TUTORIAL_USER_NAME')
-HOSTNAME    = "username@repex1.tacc.utexas.edu"
-QUEUE       = "normal"
+HOSTNAME    = "fork://localhost"
+QUEUE       = "development"
 WORKDIR     = "/home/tutorial-21" 
 
 ### This is the number of jobs you want to run
