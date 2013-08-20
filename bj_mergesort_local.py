@@ -9,6 +9,7 @@ USER_NAME   = os.environ.get('XSEDE_TUTORIAL_USER_NAME')
 HOSTNAME    = "fork://localhost"
 QUEUE       = "development"
 WORKDIR     = "/home/tutorial-21" 
+COORDINATION_URL = "redis://%s@gw68.quarry.iu.teragrid.org:6379" % REDIS_PWD
 
 ### This is the number of jobs you want to run
 NUM_JOBS = 2
@@ -21,9 +22,6 @@ unsortedfile = open('ms_input.txt', 'w')
 unsorted_string = ','.join(map(str, unsorted_list))
 unsortedfile.write(unsorted_string)
 unsortedfile.close()
-
-# set up redis server connection
-COORDINATION_URL = "redis://%s@gw68.quarry.iu.teragrid.org:6379" % REDIS_PWD
 
 # define merge function for final merge
 def merge(left,right):
