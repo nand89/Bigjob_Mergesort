@@ -2,11 +2,11 @@ import os, time, sys
 import bliss.saga as saga 
 from pilot import PilotComputeService, ComputeDataService, State
 import random
-
-HOSTNAME    = "pbs+ssh://username@repex1.tacc.utexas.edu"
-
+# Redis password and 'user' name a aquired from the environment
+REDIS_PWD   = os.environ.get('XSEDE_TUTORIAL_REDIS_PASSWORD')
+USER_NAME   = os.environ.get('XSEDE_TUTORIAL_USER_NAME')
+HOSTNAME    = "username@repex1.tacc.utexas.edu"
 QUEUE       = "normal"
-
 WORKDIR     = "/home/tutorial-21" 
 
 ### This is the number of jobs you want to run
@@ -22,7 +22,7 @@ unsortedfile.write(unsorted_string)
 unsortedfile.close()
 
 # set up redis server connection
-COORDINATION_URL = "redis://username@gw68.quarry.iu.teragrid.org:6379"
+COORDINATION_URL = "redis://%s@gw68.quarry.iu.teragrid.org:6379" % REDIS_PWD
 
 # define merge function for final merge
 def merge(left,right):
