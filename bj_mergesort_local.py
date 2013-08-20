@@ -2,6 +2,7 @@ import os, time, sys
 import bliss.saga as saga 
 from pilot import PilotComputeService, ComputeDataService, State
 import random
+
 # Redis password and 'user' name a aquired from the environment
 REDIS_PWD   = os.environ.get('XSEDE_TUTORIAL_REDIS_PASSWORD')
 USER_NAME   = os.environ.get('XSEDE_TUTORIAL_USER_NAME')
@@ -45,6 +46,8 @@ def merge(left,right):
     sorted_list += right[j:]
 
     return sorted_list
+
+################################################################################
 
 if __name__ == "__main__":
 
@@ -122,4 +125,4 @@ if __name__ == "__main__":
     	compute_data_service.cancel()    
     	pilot_compute_service.cancel()
 
-
+#####################################################################################
