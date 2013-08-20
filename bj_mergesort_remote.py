@@ -11,7 +11,7 @@ USER_NAME   = os.environ.get('XSEDE_TUTORIAL_USER_NAME')
 # The coordination server
 COORD       = "redis://localhost:6379" 
 # The host (+username) to run BigJob on
-HOSTNAME    = "tutorial-21@repex1.tacc.utexas.edu"
+HOSTNAME    = "username@repex1.tacc.utexas.edu"
 # The queue on the remote system
 QUEUE       = "development"
 # The working directory on the remote cluster / machine
