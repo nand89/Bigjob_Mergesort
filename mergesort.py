@@ -20,7 +20,7 @@ __author__    = "Nandhini Venkatesan"
 
 import sys
 
-WORKDIR = '/home/tutorial-21'
+WORKDIR = '/N/u/username'
 
 """ MAIN SORTING FUNCTION CALL """
 def sort(input_size, num_jobs, job):
