@@ -11,11 +11,11 @@ USER_NAME   = os.environ.get('XSEDE_TUTORIAL_USER_NAME')
 # The coordination server
 COORD       = "redis://localhost:6379" 
 # The host (+username) to run BigJob on
-HOSTNAME    = "username@repex1.tacc.utexas.edu"
+HOSTNAME    = "username@india.futuregrid.org"
 # The queue on the remote system
 QUEUE       = "development"
 # The working directory on the remote cluster / machine
-WORKDIR     = "/home/%s" % USER_NAME
+WORKDIR     = "N/u/username"
 # The number of jobs you want to run
 NUM_JOBS = 2
 array_size = 100
