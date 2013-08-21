@@ -11,6 +11,9 @@
 
     The parameters are as follows:
     input_size: the size of the array to be sorted
+    num_jobs: number of jobs assigned for the Bigjob
+    job: job number
+    split_filename: input filename for each job
     
 """
 __author__    = "Nandhini Venkatesan"
@@ -20,14 +23,13 @@ __author__    = "Nandhini Venkatesan"
 
 import sys
 
-WORKDIR = '/N/u/username'
+WORKDIR = '/N/u/username/mergesort_agent'
 
 """ MAIN SORTING FUNCTION CALL """
-def sort(input_size, num_jobs, job):
+def sort(input_size, num_jobs, job, split_filename):
 
     # read the input file
-    input_filename = WORKDIR + '/unsorted%s.txt' % job
-    input_file = open(str(input_filename), 'r')
+    input_file = open(str(split_filename), 'r')
     input_list = input_file.readline().split(',')
     input_list = map(int, input_list)
     input_file.close()
@@ -105,10 +107,25 @@ if __name__ == "__main__":
         num_jobs = int(sys.argv[2])
 
     if len(args) == 3:
-        job = str(sys.argv[3])
+        job = int(sys.argv[3])
+
+
+    # read from input text file
+    input_file = open('ms_input.txt', 'r')
+    unsorted_array = input_file.readline().split(',')
+    unsorted_array = map(int, unsorted_array)
+
+    # split the unsorted array into equal parts based on number of jobs 
+    split_array = unsorted_array[(job*input_size):(input_size + (job*input_size))]
+
+    # create an input file for each job to store the split array
+    split_filename = 'unsorted%s.txt' % job
+    split_file = open(split_filename, 'w')
+    split_string = ','.join(map(str, split_array))
+    split_file.write(split_string)
+    split_file.close()
         
 
-    sort(input_size, num_jobs, job)
+    sort(input_size, num_jobs, job, split_filename)
 
     sys.exit(0)
-    
