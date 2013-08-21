@@ -6,7 +6,7 @@ import random
 # Redis password and 'user' name a aquired from the environment
 REDIS_PWD   = os.environ.get('XSEDE_TUTORIAL_REDIS_PASSWORD')
 USER_NAME   = os.environ.get('XSEDE_TUTORIAL_USER_NAME')
-HOSTNAME    = "ssh://username@repex1.tacc.utexas.edu"
+HOSTNAME    = "fork://localhost"
 QUEUE       = "development"
 WORKDIR     = "/home/username/mergesort_agent" 
 COORDINATION_URL = "redis://%s@gw68.quarry.iu.teragrid.org:6379" % REDIS_PWD
