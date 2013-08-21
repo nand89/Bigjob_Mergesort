@@ -11,9 +11,6 @@
 
     The parameters are as follows:
     input_size: the size of the array to be sorted
-    num_jobs: number of jobs assigned for the Bigjob
-    job: job number
-    split_filename: input filename for each job
     
 """
 __author__    = "Nandhini Venkatesan"
@@ -99,6 +96,7 @@ if __name__ == "__main__":
     input_size = int(sys.argv[1])
     num_jobs = int(sys.argv[2])
     job = int(sys.argv[3])
+    split_filename = 'unsorted%s.txt' % job
 
     if len(args) == 1:
         input_size = int(sys.argv[1])
@@ -119,7 +117,6 @@ if __name__ == "__main__":
     split_array = unsorted_array[(job*input_size):(input_size + (job*input_size))]
 
     # create an input file for each job to store the split array
-    split_filename = 'unsorted%s.txt' % job
     split_file = open(split_filename, 'w')
     split_string = ','.join(map(str, split_array))
     split_file.write(split_string)
