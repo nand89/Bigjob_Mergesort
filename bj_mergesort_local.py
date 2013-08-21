@@ -9,7 +9,7 @@ USER_NAME   = os.environ.get('XSEDE_TUTORIAL_USER_NAME')
 HOSTNAME    = "ssh://username@repex1.tacc.utexas.edu"
 QUEUE       = "development"
 WORKDIR     = "/home/username/mergesort_agent" 
-COORDINATION_URL = "redis://localhost:6379" 
+COORDINATION_URL = "redis://%s@gw68.quarry.iu.teragrid.org:6379" % USER_NAME
 
 ### This is the number of jobs you want to run
 NUM_JOBS = 2
