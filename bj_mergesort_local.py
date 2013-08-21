@@ -8,7 +8,7 @@ REDIS_PWD   = os.environ.get('XSEDE_TUTORIAL_REDIS_PASSWORD')
 USER_NAME   = os.environ.get('XSEDE_TUTORIAL_USER_NAME')
 HOSTNAME    = "fork://localhost"
 QUEUE       = "development"
-WORKDIR     = "/home/tutorial-21" 
+WORKDIR     = "/home/username" 
 COORDINATION_URL = "redis://%s@gw68.quarry.iu.teragrid.org:6379" % REDIS_PWD
 
 ### This is the number of jobs you want to run
@@ -79,19 +79,12 @@ if __name__ == "__main__":
 		
 		""" SINGLE MERGE-SORT JOB """
 		
-		# split the unsorted array into equal parts based on number of jobs 
-		split_array = unsorted_list[(x*input_size):(input_size + (x*input_size))]
-		
 		# create an input file for each job to store the split array
-		input_filename = 'unsorted%s.txt' % x
-		inputfile = open(input_filename, 'w')
-		input_string = ','.join(map(str, split_array))
-		inputfile.write(input_string)
-		inputfile.close()
+		split_filename = 'unsorted%s.txt' % x
 
 		compute_unit_description = {	"executable": "python",
                         			"arguments": [workdir.get_url().path + 'mergesort.py', input_size, 
-                        			NUM_JOBS, x],
+                        			NUM_JOBS, x, split_filename],
                         			"number_of_processes": 1,    
                         			"working_directory":workdir.get_url().path,        
                         			"output": "stdout_%s.txt" % x,
