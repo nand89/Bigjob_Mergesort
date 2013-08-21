@@ -6,10 +6,10 @@ import random
 # Redis password and 'user' name a aquired from the environment
 REDIS_PWD   = os.environ.get('XSEDE_TUTORIAL_REDIS_PASSWORD')
 USER_NAME   = os.environ.get('XSEDE_TUTORIAL_USER_NAME')
-HOSTNAME    = "fork://localhost"
+HOSTNAME    = "ssh://username@repex1.tacc.utexas.edu"
 QUEUE       = "development"
-WORKDIR     = "/home/username" 
-COORDINATION_URL = "redis://%s@gw68.quarry.iu.teragrid.org:6379" % REDIS_PWD
+WORKDIR     = "/home/username/mergesort_agent" 
+COORDINATION_URL = "redis://localhost:6379" 
 
 ### This is the number of jobs you want to run
 NUM_JOBS = 2
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     	dirname = 'sftp://localhost/%s/mergesort_agent' % os.getcwd()
     	workdir = saga.filesystem.Directory(dirname, saga.filesystem.Create)
 
-    	pilot_compute_description = { "service_url": HOSTNAME,
+    	pilot_compute_description = { "service_url": HOSTNAME + WORKDIR,
                                       "number_of_processes": 12,
                                       "working_directory": workdir.get_url().path,
                                       "walltime":10
@@ -115,5 +115,4 @@ if __name__ == "__main__":
     	print ("Terminate Pilot Jobs")
     	compute_data_service.cancel()    
     	pilot_compute_service.cancel()
-
 
