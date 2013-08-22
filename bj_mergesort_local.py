@@ -61,9 +61,11 @@ if __name__ == "__main__":
                                       "walltime":10
                               	    }
 
-    	# copy the executable and input file to the remote host
+    	# copy the executable, wrapper and input file to the remote host
         msexe = saga.filesystem.File('sftp://localhost/%s/mergesort.py' % os.getcwd())
         msexe.copy(workdir.get_url())
+        mswrapper = saga.filesystem.File('sftp://localhost/%s/mergesort.sh' % os.getcwd())
+        mswrapper.copy(workdir.get_url())
 	msinput = saga.filesystem.File('sftp://localhost/%s/ms_input.txt' % os.getcwd())
         msinput.copy(workdir.get_url())
 
