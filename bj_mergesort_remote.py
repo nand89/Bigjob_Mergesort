@@ -85,8 +85,8 @@ def main():
 
 	    #compute unit description
             task_desc = pilot.ComputeUnitDescription()
-            task_desc.executable = 'python'
-            task_desc.arguments = [WORKDIR + '/mergesort.py', input_size, 
+            task_desc.executable = 'sh'
+            task_desc.arguments = [WORKDIR + '/mergesort.sh', input_size, 
                         			NUM_JOBS, x, split_filename]
             task_desc.number_of_processes = 1
 	    task_desc.queue = QUEUE
