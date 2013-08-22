@@ -3,6 +3,7 @@ import sys
 import pilot
 import traceback
 import random
+import saga
 
 # Redis password and 'user' name a aquired from the environment
 REDIS_PWD   = os.environ.get('XSEDE_TUTORIAL_REDIS_PASSWORD')
@@ -13,9 +14,9 @@ COORD       = "redis://localhost:6379"
 # The host (+username) to run BigJob on
 HOSTNAME    = "username@india.futuregrid.org"
 # The queue on the remote system
-QUEUE       = "development"
+QUEUE       = "normal"
 # The working directory on the remote cluster / machine
-WORKDIR     = "N/u/username"
+WORKDIR     = "/N/u/username/mergesort_agent" 
 # The number of jobs you want to run
 NUM_JOBS = 2
 array_size = 100
@@ -57,10 +58,15 @@ def merge(left,right):
 def main():
     try:
 
+	# copy the executable and input file to the remote host
+        msexe = saga.filesystem.File('sftp://localhost/%s/mergesort.py' % os.getcwd())
+        msexe.copy('ssh://%s' % HOSTNAME)
+	msinput = saga.filesystem.File('sftp://localhost/%s/ms_input.txt' % os.getcwd())
+        msinput.copy('ssh://%s' % HOSTNAME)	
+
 	# this describes the parameters and requirements for our pilot job
         pilot_description = pilot.PilotComputeDescription()
-        pilot_description.service_url = "ssh://%s/mergesort_agent" % HOSTNAME
-        pilot_description.queue = QUEUE
+        pilot_description.service_url = "pbs+ssh://%s/%s" % (HOSTNAME, WORKDIR)
         pilot_description.number_of_processes = 12
         pilot_description.working_directory = WORKDIR
         pilot_description.walltime = 10
@@ -75,22 +81,15 @@ def main():
 	
 	    """ SINGLE MERGE-SORT JOB """
 
-	    # split the unsorted array into equal parts based on number of jobs 
-	    split_array = unsorted_list[(x*input_size):(input_size + (x*input_size))]
-
-	    # create an input file for each job to store the split array
-	    input_filename = 'unsorted%s.txt' % x
-	    inputfile = open(input_filename, 'w')
-	    input_string = ','.join(map(str, split_array))
-	    inputfile.write(input_string)
-	    inputfile.close()
+	    split_filename = 'unsorted%s.txt' % x
 
 	    #compute unit description
             task_desc = pilot.ComputeUnitDescription()
             task_desc.executable = 'python'
             task_desc.arguments = [WORKDIR + '/mergesort.py', input_size, 
-                        			NUM_JOBS, x]
+                        			NUM_JOBS, x, split_filename]
             task_desc.number_of_processes = 1
+	    task_desc.queue = QUEUE
             task_desc.output = 'stdout.txt'
             task_desc.error = 'stderr.txt'
 
@@ -137,5 +136,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-    
-    
