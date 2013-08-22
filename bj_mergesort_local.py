@@ -82,8 +82,8 @@ if __name__ == "__main__":
 		# create an input file for each job to store the split array
 		split_filename = 'unsorted%s.txt' % x
 
-		compute_unit_description = {	"executable": "python",
-                        			"arguments": [workdir.get_url().path + 'mergesort.py', input_size, 
+		compute_unit_description = {	"executable": "sh",
+                        			"arguments": [workdir.get_url().path + 'mergesort.sh', input_size, 
                         			NUM_JOBS, x, split_filename],
                         			"number_of_processes": 1,    
                         			"working_directory":workdir.get_url().path,        
