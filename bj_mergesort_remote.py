@@ -58,9 +58,11 @@ def merge(left,right):
 def main():
     try:
 
-	# copy the executable and input file to the remote host
+	# copy the executable, wrapper and input file to the remote host
         msexe = saga.filesystem.File('sftp://localhost/%s/mergesort.py' % os.getcwd())
         msexe.copy('ssh://%s' % HOSTNAME)
+        mswrapper = saga.filesystem.File('sftp://localhost/%s/mergesort.sh' % os.getcwd())
+        mswrapper.copy('ssh://%s' % HOSTNAME)
 	msinput = saga.filesystem.File('sftp://localhost/%s/ms_input.txt' % os.getcwd())
         msinput.copy('ssh://%s' % HOSTNAME)	
 
