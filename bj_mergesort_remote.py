@@ -11,7 +11,7 @@ REDIS_PWD   = os.environ.get('XSEDE_TUTORIAL_REDIS_PASSWORD')
 USER_NAME   = os.environ.get('XSEDE_TUTORIAL_USER_NAME')
 
 # The coordination server
-COORD       = "redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379" 
+COORD       = "redis://username@gw68.quarry.iu.teragrid.org:6379" 
 # The host (+username) to run BigJob on
 HOSTNAME    = "username@repex1.tacc.utexas.edu"
 # The queue on the remote system
