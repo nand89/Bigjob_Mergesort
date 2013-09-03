@@ -1,22 +1,23 @@
 import os
 import sys
-import pilot
+import pilot 
 import traceback
 import random
 import saga
+import glob
 
 # Redis password and 'user' name a aquired from the environment
 REDIS_PWD   = os.environ.get('XSEDE_TUTORIAL_REDIS_PASSWORD')
 USER_NAME   = os.environ.get('XSEDE_TUTORIAL_USER_NAME')
 
 # The coordination server
-COORD       = "redis://localhost:6379" 
+COORD       = "redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379" 
 # The host (+username) to run BigJob on
-HOSTNAME    = "username@india.futuregrid.org"
+HOSTNAME    = "username@repex1.tacc.utexas.edu"
 # The queue on the remote system
-QUEUE       = "normal"
+QUEUE       = "development"
 # The working directory on the remote cluster / machine
-WORKDIR     = "/N/u/username/mergesort_agent" 
+WORKDIR     = "/home/username/mergesort_agent" 
 # The number of jobs you want to run
 NUM_JOBS = 2
 array_size = 100
@@ -58,17 +59,15 @@ def merge(left,right):
 def main():
     try:
 
-	# copy the executable, wrapper and input file to the remote host
+	# copy the executable and input file to the remote host
         msexe = saga.filesystem.File('sftp://localhost/%s/mergesort.py' % os.getcwd())
         msexe.copy('ssh://%s' % HOSTNAME)
-        mswrapper = saga.filesystem.File('sftp://localhost/%s/mergesort.sh' % os.getcwd())
-        mswrapper.copy('ssh://%s' % HOSTNAME)
 	msinput = saga.filesystem.File('sftp://localhost/%s/ms_input.txt' % os.getcwd())
         msinput.copy('ssh://%s' % HOSTNAME)	
 
 	# this describes the parameters and requirements for our pilot job
         pilot_description = pilot.PilotComputeDescription()
-        pilot_description.service_url = "pbs+ssh://%s/%s" % (HOSTNAME, WORKDIR)
+        pilot_description.service_url = "ssh://%s/%s" % (HOSTNAME, WORKDIR)
         pilot_description.number_of_processes = 12
         pilot_description.working_directory = WORKDIR
         pilot_description.walltime = 10
@@ -76,6 +75,10 @@ def main():
 	# create a new pilot job
         pilot_compute_service = pilot.PilotComputeService(COORD)
         pilotjob = pilot_compute_service.create_pilot(pilot_description)
+
+# specify local directory to copy input and output text files back 
+    	dirname = 'sftp://localhost/%s/mergesort_agent' % os.getcwd()
+    	workdir = saga.filesystem.Directory(dirname, saga.filesystem.CREATE_PARENTS)
 
 	# submit tasks to pilot job
         tasks = list()
@@ -87,8 +90,8 @@ def main():
 
 	    #compute unit description
             task_desc = pilot.ComputeUnitDescription()
-            task_desc.executable = 'sh'
-            task_desc.arguments = [WORKDIR + '/mergesort.sh', input_size, 
+            task_desc.executable = 'python'
+            task_desc.arguments = [WORKDIR + '/mergesort.py', input_size, 
                         			NUM_JOBS, x, split_filename]
             task_desc.number_of_processes = 1
 	    task_desc.queue = QUEUE
@@ -103,7 +106,7 @@ def main():
         pilotjob.wait()
 
 	# Copy the outputs back to local file
-        for textfile in workdir.list('sorted*'):
+	for textfile in workdir.list('sorted*'):
             	print ' * Copying %s/%s to %s' % (workdir.get_url(), textfile, WORKDIR)
             	workdir.copy(textfile, 'sftp://localhost/%s/' % os.getcwd())
 
