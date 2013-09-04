@@ -4,23 +4,22 @@ import pilot
 import traceback
 import random
 import saga
-import glob
 
 # Redis password and 'user' name a aquired from the environment
 REDIS_PWD   = os.environ.get('XSEDE_TUTORIAL_REDIS_PASSWORD')
 USER_NAME   = os.environ.get('XSEDE_TUTORIAL_USER_NAME')
 
 # The coordination server
-COORD       = "redis://username@gw68.quarry.iu.teragrid.org:6379" 
+COORD       = "redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379" 
 # The host (+username) to run BigJob on
 HOSTNAME    = "username@repex1.tacc.utexas.edu"
 # The queue on the remote system
 QUEUE       = "development"
 # The working directory on the remote cluster / machine
-WORKDIR     = "/home/username/mergesort_agent" 
+WORKDIR     = "/home/username" 
 # The number of jobs you want to run
-NUM_JOBS = 2
-array_size = 100
+NUM_JOBS = 4
+array_size = 128
 input_size = int(array_size/NUM_JOBS)
 
 ########################################################################
@@ -67,18 +66,18 @@ def main():
 
 	# this describes the parameters and requirements for our pilot job
         pilot_description = pilot.PilotComputeDescription()
-        pilot_description.service_url = "ssh://%s/%s" % (HOSTNAME, WORKDIR)
+        pilot_description.service_url = "ssh://%s/%s" % (HOSTNAME, WORKDIR + '/mergesort_agent')
         pilot_description.number_of_processes = 12
-        pilot_description.working_directory = WORKDIR
+        pilot_description.working_directory = WORKDIR + '/mergesort_agent'
         pilot_description.walltime = 10
 
 	# create a new pilot job
         pilot_compute_service = pilot.PilotComputeService(COORD)
         pilotjob = pilot_compute_service.create_pilot(pilot_description)
 
-# specify local directory to copy input and output text files back 
-    	dirname = 'sftp://localhost/%s/mergesort_agent' % os.getcwd()
-    	workdir = saga.filesystem.Directory(dirname, saga.filesystem.CREATE_PARENTS)
+	# specify local directory to copy input and output text files back 
+ 	dirname = 'sftp://%s%s' % (HOSTNAME, WORKDIR)
+    	workdir = saga.filesystem.Directory(dirname, saga.filesystem.CREATE_PARENTS)	
 
 	# submit tasks to pilot job
         tasks = list()
