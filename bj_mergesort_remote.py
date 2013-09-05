@@ -1,28 +1,20 @@
-import os
-import sys
-import pilot 
-import traceback
+import os, time, sys
+import saga 
+from pilot import PilotComputeService, ComputeDataService, State
 import random
-import saga
 
 # Redis password and 'user' name a aquired from the environment
 REDIS_PWD   = os.environ.get('XSEDE_TUTORIAL_REDIS_PASSWORD')
 USER_NAME   = os.environ.get('XSEDE_TUTORIAL_USER_NAME')
-
-# The coordination server
-COORD       = "redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379" 
-# The host (+username) to run BigJob on
 HOSTNAME    = "username@repex1.tacc.utexas.edu"
-# The queue on the remote system
 QUEUE       = "development"
-# The working directory on the remote cluster / machine
-WORKDIR     = "/home/username" 
-# The number of jobs you want to run
-NUM_JOBS = 4
-array_size = 128
-input_size = int(array_size/NUM_JOBS)
+WORKDIR     = "/home/username"
+COORDINATION_URL = "redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379" 
 
-########################################################################
+### This is the number of jobs you want to run
+NUM_JOBS = 256
+array_size = 1048576
+input_size = int(array_size/NUM_JOBS)
 
 # create unsorted random list of numbers and store in 'unsorted.txt'
 unsorted_list = random.sample(range(10*array_size), array_size)
@@ -53,59 +45,60 @@ def merge(left,right):
 
     return sorted_list
 
-#########################################################################
+################################################################################
 
-def main():
-    try:
+if __name__ == "__main__":
 
-	# copy the executable and input file to the remote host
+    	pilot_compute_service = PilotComputeService(COORDINATION_URL)
+    
+    	# specify local directory to copy input and output text files back 
+    	dirname = 'sftp://%s/%s' % (HOSTNAME, WORKDIR)
+    	workdir = saga.filesystem.Directory(dirname, saga.filesystem.CREATE_PARENTS)
+
+    	pilot_compute_description = { "service_url": "ssh://" + HOSTNAME + '/'+ WORKDIR,
+                                      "number_of_processes": 8,
+                                      "working_directory": WORKDIR,
+                                      "walltime":10
+                              	    }
+
+    	# copy the executable and input file to the remote host
+	mswrapper = saga.filesystem.File('sftp://localhost/%s/mergesort.sh' % os.getcwd())
+        mswrapper.copy(workdir.get_url())
         msexe = saga.filesystem.File('sftp://localhost/%s/mergesort.py' % os.getcwd())
-        msexe.copy('ssh://%s' % HOSTNAME)
+        msexe.copy(workdir.get_url())
 	msinput = saga.filesystem.File('sftp://localhost/%s/ms_input.txt' % os.getcwd())
-        msinput.copy('ssh://%s' % HOSTNAME)	
+        msinput.copy(workdir.get_url())
 
-	# this describes the parameters and requirements for our pilot job
-        pilot_description = pilot.PilotComputeDescription()
-        pilot_description.service_url = "ssh://%s/%s" % (HOSTNAME, WORKDIR + '/mergesort_agent')
-        pilot_description.number_of_processes = 12
-        pilot_description.working_directory = WORKDIR + '/mergesort_agent'
-        pilot_description.walltime = 10
+ 	pilot_compute_service.create_pilot(pilot_compute_description)
 
-	# create a new pilot job
-        pilot_compute_service = pilot.PilotComputeService(COORD)
-        pilotjob = pilot_compute_service.create_pilot(pilot_description)
+ 	compute_data_service = ComputeDataService()
+    	compute_data_service.add_pilot_compute_service(pilot_compute_service)
 
-	# specify local directory to copy input and output text files back 
- 	dirname = 'sftp://%s%s' % (HOSTNAME, WORKDIR)
-    	workdir = saga.filesystem.Directory(dirname, saga.filesystem.CREATE_PARENTS)	
+	print ("Finished Pilot-Job setup. Submitting compute units...")
 
-	# submit tasks to pilot job
-        tasks = list()
-        for x in range(NUM_JOBS):
-	
-	    """ SINGLE MERGE-SORT JOB """
+	# submit compute units
+        for x in range(0, NUM_JOBS):
+		
+		""" SINGLE MERGE-SORT JOB """
+		
+		# create an input file for each job to store the split array
+		split_filename = 'unsorted%s.txt' % x
 
-	    split_filename = 'unsorted%s.txt' % x
+		compute_unit_description = {	"executable": "sh",
+                        			"arguments": [WORKDIR + '/mergesort.sh', input_size, 
+                        			NUM_JOBS, x, split_filename],
+                        			"number_of_processes": 1,    
+                        			"working_directory": WORKDIR,        
+                        			"output": "stdout_%s.txt" % x,
+                        			"error": "stderr_%s.txt" % x,
+                        		    }   
+		compute_data_service.submit_compute_unit(compute_unit_description)
 
-	    #compute unit description
-            task_desc = pilot.ComputeUnitDescription()
-            task_desc.executable = 'python'
-            task_desc.arguments = [WORKDIR + '/mergesort.py', input_size, 
-                        			NUM_JOBS, x, split_filename]
-            task_desc.number_of_processes = 1
-	    task_desc.queue = QUEUE
-            task_desc.output = 'stdout.txt'
-            task_desc.error = 'stderr.txt'
-
-            task = pilotjob.submit_compute_unit(task_desc)
-            print "* Submitted task '%s' with id '%s' to %s" % (x, task.get_id(), HOSTNAME)
-            tasks.append(task)
-
-        print "Waiting for tasks to finish..."
-        pilotjob.wait()
-
-	# Copy the outputs back to local file
-	for textfile in workdir.list('sorted*'):
+	print ("Waiting for compute units to complete...")
+    	compute_data_service.wait()
+                
+    	# Copy the outputs back to local file
+        for textfile in workdir.list('sorted*'):
             	print ' * Copying %s/%s to %s' % (workdir.get_url(), textfile, WORKDIR)
             	workdir.copy(textfile, 'sftp://localhost/%s/' % os.getcwd())
 
@@ -119,24 +112,10 @@ def main():
 		final_array = merge(final_array,temp_array)
 	final_output = open('ms_output.txt','w')
 	final_string = ','.join(map(str,final_array))
-	final_output.write(final_string)
+	final_output.write(final_string)	
 
-        return(0)
-
-    except Exception, ex:
-            print "AN ERROR OCCURED: %s" % ((str(ex)))
-            # print a stack trace in case of an exception -
-            # this can be helpful for debugging the problem
-            traceback.print_exc()
-            return(-1)
-
-    finally:
-        # alway try to shut down pilots, otherwise jobs might end up
-        # lingering in the queue
-        print ("Terminating BigJob...")
-        pilotjob.cancel()
-        pilot_compute_service.cancel()
+    	print ("Terminate Pilot Jobs")
+    	compute_data_service.cancel()    
+    	pilot_compute_service.cancel()
 
 
-if __name__ == "__main__":
-    sys.exit(main())
