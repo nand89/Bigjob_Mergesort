@@ -2,26 +2,20 @@ import os, time, sys
 import saga 
 from pilot import PilotComputeService, ComputeDataService, State
 import random
+import time
 
 # Redis password and 'user' name a aquired from the environment
 REDIS_PWD   = os.environ.get('XSEDE_TUTORIAL_REDIS_PASSWORD')
 USER_NAME   = os.environ.get('XSEDE_TUTORIAL_USER_NAME')
-HOSTNAME    = "username@repex1.tacc.utexas.edu"
+HOSTNAME    = "username@india.futuregrid.org"
 QUEUE       = "development"
-WORKDIR     = "/home/username"
+WORKDIR     = "/N/u/username"
 COORDINATION_URL = "redis://ILikeBigJob_wITH-REdIS@gw68.quarry.iu.teragrid.org:6379" 
 
 ### This is the number of jobs you want to run
-NUM_JOBS = 256
-array_size = 1048576
+NUM_JOBS = 2
+array_size = 128
 input_size = int(array_size/NUM_JOBS)
-
-# create unsorted random list of numbers and store in 'unsorted.txt'
-unsorted_list = random.sample(range(10*array_size), array_size)
-unsortedfile = open('ms_input.txt', 'w')
-unsorted_string = ','.join(map(str, unsorted_list))
-unsortedfile.write(unsorted_string)
-unsortedfile.close()
 
 # define merge function for final merge
 def merge(left,right):
@@ -50,33 +44,50 @@ def merge(left,right):
 if __name__ == "__main__":
 
     	pilot_compute_service = PilotComputeService(COORDINATION_URL)
-    
+    	
     	# specify local directory to copy input and output text files back 
     	dirname = 'sftp://%s/%s' % (HOSTNAME, WORKDIR)
     	workdir = saga.filesystem.Directory(dirname, saga.filesystem.CREATE_PARENTS)
 
-    	pilot_compute_description = { "service_url": "ssh://" + HOSTNAME + '/'+ WORKDIR,
+    	pilot_compute_description = { "service_url": "ssh://" + HOSTNAME + WORKDIR,
                                       "number_of_processes": 8,
                                       "working_directory": WORKDIR,
                                       "walltime":10
                               	    }
 
-    	# copy the executable and input file to the remote host
-	mswrapper = saga.filesystem.File('sftp://localhost/%s/mergesort.sh' % os.getcwd())
-        mswrapper.copy(workdir.get_url())
-        msexe = saga.filesystem.File('sftp://localhost/%s/mergesort.py' % os.getcwd())
-        msexe.copy(workdir.get_url())
-	msinput = saga.filesystem.File('sftp://localhost/%s/ms_input.txt' % os.getcwd())
-        msinput.copy(workdir.get_url())
-
  	pilot_compute_service.create_pilot(pilot_compute_description)
 
+	#create compute-unit to create input file
+	compute_data_service = ComputeDataService()
+    	compute_data_service.add_pilot_compute_service(pilot_compute_service)
+
+	print ("Finished Pilot-Job setup.")
+	print ("\nSubmitting first compute-unit to create the input file...")
+
+	# submit compute unit to obtain unsorted input file
+	compute_unit_description = {	"executable": "python",
+                        		"arguments": [WORKDIR + '/input.py', array_size],
+                        		"number_of_processes": 1,    
+                        		"working_directory": WORKDIR,        
+                        		"output": "stdout.txt",
+                        		"error": "stderr.txt",
+                        	    }   
+	compute_data_service.submit_compute_unit(compute_unit_description)
+
+	compute_data_service.wait()
+
+	print ("Input file ready.")
+
+	#start time for merge-sort
+	qstart = time.time()
+
+	#create compute unit to perform merge-sort
  	compute_data_service = ComputeDataService()
     	compute_data_service.add_pilot_compute_service(pilot_compute_service)
 
-	print ("Finished Pilot-Job setup. Submitting compute units...")
+	print ("\nSubmitting second set of compute-units for merge-sorting...")
 
-	# submit compute units
+	# submit compute units merge-sorting
         for x in range(0, NUM_JOBS):
 		
 		""" SINGLE MERGE-SORT JOB """
@@ -84,8 +95,8 @@ if __name__ == "__main__":
 		# create an input file for each job to store the split array
 		split_filename = 'unsorted%s.txt' % x
 
-		compute_unit_description = {	"executable": "sh",
-                        			"arguments": [WORKDIR + '/mergesort.sh', input_size, 
+		compute_unit_description = {	"executable": "python",
+                        			"arguments": [WORKDIR + '/mergesort.py', input_size, 
                         			NUM_JOBS, x, split_filename],
                         			"number_of_processes": 1,    
                         			"working_directory": WORKDIR,        
@@ -94,28 +105,45 @@ if __name__ == "__main__":
                         		    }   
 		compute_data_service.submit_compute_unit(compute_unit_description)
 
-	print ("Waiting for compute units to complete...")
+
+	print ("Waiting for merge-sort compute-units to complete...")
+
+	#wait time start
+	wstart = time.time()	
+	
     	compute_data_service.wait()
-                
-    	# Copy the outputs back to local file
-        for textfile in workdir.list('sorted*'):
-            	print ' * Copying %s/%s to %s' % (workdir.get_url(), textfile, WORKDIR)
-            	workdir.copy(textfile, 'sftp://localhost/%s/' % os.getcwd())
 
-        # concatenate the strings together
-        print ' * Performing a final MERGE of sorted outputs of all jobs to : ms_output.txt'
-	final_array = []
-        for x in range(0, NUM_JOBS):
-        	temp_file = open('sorted%s.txt' % x, 'r')
-		temp_array = temp_file.readline().split(',')
-		temp_array = map(int, temp_array)		
-		final_array = merge(final_array,temp_array)
-	final_output = open('ms_output.txt','w')
-	final_string = ','.join(map(str,final_array))
-	final_output.write(final_string)	
+	#end time for merge-sort
+	qend = time.time()
+        
+	#create compute-unit to do final-merge
+	compute_data_service = ComputeDataService()
+    	compute_data_service.add_pilot_compute_service(pilot_compute_service)
 
-    	print ("Terminate Pilot Jobs")
+	print ("\nSubmitting final compute-unit to create the output file...")
+
+	# submit compute unit to obtain unsorted input file
+	compute_unit_description = {	"executable": "python",
+                        		"arguments": [WORKDIR + '/final_merge.py', NUM_JOBS],
+                        		"number_of_processes": 1,    
+                        		"working_directory": WORKDIR,        
+                        		"output": "stdout.txt",
+                        		"error": "stderr.txt",
+                        	    }   
+	
+	compute_data_service.submit_compute_unit(compute_unit_description)
+
+	compute_data_service.wait()  
+    	
+    	print ("\nTerminate Pilot Jobs")
     	compute_data_service.cancel()    
     	pilot_compute_service.cancel()
 
-
+	print "Queuing time: ", round((qend-qstart)-(qend-wstart),2)
+	
+	#record the queuing time
+	recordfile = open('time.txt', 'a')
+	recordfile.write(str(NUM_JOBS)+"	")
+	recordfile.write(str(array_size)+"	")
+	recordfile.write(str(round((qend-qstart)-(qend-wstart),2))+"\n")
+	recordfile.close()
